@@ -1,0 +1,2 @@
+composer create-project --prefer-dist yiisoft/yii2-app-basic yii2-app
+Test locally to ensure the Yii2 app works
