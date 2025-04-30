@@ -1,0 +1,47 @@
+---
+- hosts: app
+  become: yes
+  tasks:
+    - name: Install required packages
+      apt:
+        name:
+          - docker.io
+          - nginx
+          - git
+          - php
+          - php-mysql
+        update_cache: yes
+
+    - name: Add user to docker group
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes
+
+    - name: Start and enable Docker
+      systemd:
+        name: docker
+        enabled: yes
+        state: started
+
+    - name: Initialize Docker Swarm
+      shell: docker swarm init || true
+
+    - name: Copy NGINX config
+      copy:
+        src: nginx.conf
+        dest: /etc/nginx/sites-available/yii2
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Enable NGINX site
+      file:
+        src: /etc/nginx/sites-available/yii2
+        dest: /etc/nginx/sites-enabled/yii2
+        state: link
+
+    - name: Restart NGINX
+      service:
+        name: nginx
+        state: restarted
